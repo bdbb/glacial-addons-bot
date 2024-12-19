@@ -1,0 +1,36 @@
+name: Auto Update and Restart Python in Tmux
+
+on:
+  push:
+    branches:
+      - main  # Change this to your desired branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H GCE_INSTANCE_IP >> ~/.ssh/known_hosts
+
+    - name: Stop tmux session, update code, and restart
+      run: |
+        ssh -i ~/.ssh/id_rsa user@GCE_INSTANCE_IP << 'EOF'
+        # Stop the tmux session if it exists
+        tmux kill-session -t bot || echo "No tmux session found to stop"
+
+        # Navigate to the repository and pull the latest code
+        cd main/glacial-addons-bot/
+        git pull
+        source venv/bin/activate
+
+        # Start a new tmux session and run the Python script
+        tmux new-session -d -s bot 'python3 main.py'
+        EOF
