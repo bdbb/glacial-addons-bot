@@ -5,7 +5,9 @@ import json
 import requests
 import os
 from datetime import datetime, timezone, timedelta
+from dotenv import load_dotenv
 
+load_dotenv()
 DISCORD_BOT_TOKEN = os.getenv("KEY")
 
 # Set up bot intents
