@@ -22,7 +22,7 @@ jobs:
 
     - name: Stop tmux session, update code, and restart
       run: |
-        ssh -i ~/.ssh/id_rsa user@GCE_INSTANCE_IP << 'EOF'
+        ssh -i ~/.ssh/id_rsa user@35.223.35.59 << 'EOF'
         # Stop the tmux session if it exists
         tmux kill-session -t bot || echo "No tmux session found to stop"
 
