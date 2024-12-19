@@ -1,9 +1,9 @@
-name: Auto Update and Restart Python in Tmux
+name: Auto Update and Restart Python Script
 
 on:
   push:
     branches:
-      - main  # Change this to your desired branch
+      - main  # Change to your branch name if necessary
 
 jobs:
   deploy:
@@ -18,19 +18,21 @@ jobs:
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H 35.223.35.59 >> ~/.ssh/known_hosts
+        ssh-keyscan -H 35.223.35.59 >> ~/.ssh/known_hosts  # Replace with your GCE external IP
 
-    - name: Stop tmux session, update code, and restart
+    - name: Stop running Python script, update code, and restart
       run: |
-        ssh -i ~/.ssh/id_rsa user@35.223.35.59 << 'EOF'
-        # Stop the tmux session if it exists
-        tmux kill-session -t bot || echo "No tmux session found to stop"
+        ssh -i ~/.ssh/id_rsa gce-user@35.223.35.59 << 'EOF'
+        # Kill any existing Python process running the script
+        pkill -f main.py || echo "No running Python script found to stop"
 
         # Navigate to the repository and pull the latest code
-        cd main/glacial-addons-bot/
+        cd ~/bot/glacial-addons-bot/
         git pull
+
+        # Activate the virtual environment
         source venv/bin/activate
 
-        # Start a new tmux session and run the Python script
-        tmux new-session -d -s bot 'python3 main.py'
+        # Start the Python script in the background
+        nohup python3 main.py > app.log 2>&1 &
         EOF
