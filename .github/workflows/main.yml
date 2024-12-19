@@ -19,7 +19,7 @@ jobs:
 
     - name: Stop running Python script, update code, and restart
       run: |
-        ssh -i ~/.ssh/id_rsa myronlai@mainvm << 'EOF'
+        ssh -i ~/.ssh/id_rsa myronlai@35.223.35.59 << 'EOF'
         # Kill any existing Python process running the script
         pkill -f main.py || echo "No running Python script found to stop"
 
